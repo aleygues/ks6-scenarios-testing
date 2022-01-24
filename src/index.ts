@@ -72,7 +72,7 @@ interface INamedQueryTest<T extends any> extends IQueryTest<T> {
 
 interface INamedCustomTest {
     name: string;
-    test: (testTools: TestArgs) => IVariables;
+    test: (args: TestArgs & { variables: IVariables }) => IVariables;
 }
 
 export const query = <T extends any>(testDescription: string, testCase: IQueryTest<T>): INamedQueryTest<T> => {
@@ -103,7 +103,7 @@ export const run = (description: string, config: KeystoneConfig, tests: Test[]):
         for (const testToExec of tests) {
             test(testToExec.name, async () => {
                 if ('test' in testToExec) {
-                    const varUpdate = await testToExec.test(testEnv.testArgs);
+                    const varUpdate = await testToExec.test({ ...testEnv.testArgs, variables });
 
                     if (varUpdate) {
                         Object.assign(variables, varUpdate);

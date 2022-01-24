@@ -29,7 +29,7 @@ Just create a scenario file `test/users.test.ts` for instance, import the lib, c
 // test/users.test.ts
 import { Lists } from ".keystone/types";
 import { config } from '../../keystone';
-import { query, run } from 'ks6-scenarios-testing';
+import { query, run, custom } from 'ks6-scenarios-testing';
 import { gql } from "@keystone-6/core";
 
 // This Gql request could be moved to a graphql/users/createUser.ts file for instance
@@ -55,8 +55,11 @@ const getUser = gql`query user(
 }`;
 
 // Creating a scenario
+// The step will be executed one after another!
 run("Regular user story", config, [
+    // Running a Gql mutation to create an User
     query<Lists.User.Item>("Create Toto", {
+        query: createUser,
         beforeRequest: {
             email1: "toto@gmail.com",
             password1: "supersecret"
@@ -64,15 +67,17 @@ run("Regular user story", config, [
         payload: variables => ({
             data: {
                 email: variables.email1,
+                firstname: "toto",
+                lastname: "toto",
                 password: variables.password1
             }
         }),
-        query: createUser,
         testReponse: ({ json, variables }) => {
             expect(!!json.id).toBe(true);
             expect(json.email).toEqual(variables.email1);
 
             return {
+                userId: json.id,
                 session: {
                     itemId: json.id,
                     data: json
@@ -80,14 +85,39 @@ run("Regular user story", config, [
             };
         }
     }),
-    query<Lists.User.Item>("Get Toto using session", {
+
+    // Checking if the db contains the newly created user
+    custom('Retrieve Toto in the db', async ({ context, variables }) => {
+        const user = await context.db.User.findOne({
+            where: {
+                id: variables.userId
+            }
+        });
+
+        expect(user).not.toBeFalsy();
+    }),
+
+    // Checking that an unauthenticated user cannot get Toto
+    query<Lists.User.Item>("Get Toto from an authenticated User", {
+        query: getUser,
+        payload: variables => ({
+            id: variables.userId
+        }),
+        // My user accesses does not throw a Gql error in that case, but user is null
+        testFalsy: ({ json }) => {
+            expect(json).toBeFalsy();
+        }
+    }),
+
+    // Checking that an authenticated user (Toto) can query the User (himself)
+    query<Lists.User.Item>("Get Toto from an authenticated User", {
         withAuth: true,
         query: getUser,
         payload: variables => ({
-            id: variables.session?.itemId
+            id: variables.userId
         }),
         testReponse: ({ json, variables }) => {
-            expect(json.id).toEqual(variables.session?.itemId);
+            expect(json.id).toEqual(variables.userId);
         }
     }),
 ]);
