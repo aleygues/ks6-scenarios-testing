@@ -67,8 +67,6 @@ run("Regular user story", config, [
         payload: variables => ({
             data: {
                 email: variables.email1,
-                firstname: "toto",
-                lastname: "toto",
                 password: variables.password1
             }
         }),
