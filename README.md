@@ -1,14 +1,22 @@
 # Scenarios testing with Keystone6
 
-This package is thought to be used with Keystonejs v6 framework.
+This package is thought to be used with [Keystonejs v6 framework](https://keystonejs.com/).
 
-The idea behind this package is to provide an efficient way to execute **integration** and **end to end** tests against a Keystone app. The idea is mainly inspired by Postman runner approach with prerequest script and tests suit. 
+The idea behind this package is to provide an efficient way to execute **integration** and **end to end** tests against a Keystone app. The idea is mainly inspired by Postman runner approach with prerequest scripts and tests suit. 
+
+## Motivations
+
+Even if Postman is great, you have to pay to share and work as a team on a tests collection. That's why I needed a way to work, share and create versions (versioning) of my tests (for free). With KS6 being released, the provided testing suit is now powerful enough to replace my Postman collections approach!
+
+## Important note
+
+Please note that this package mainly use [KS6 testing tools](https://keystonejs.com/docs/guides/testing) under the hood, so most of your problems may be answered in the doc! If you are still struggling, feel free to open an issue or contact me on the KS6 slack (aleygues).
 
 ## Installation
 
 Just add the package using `yarn add -D ks6-scenarios-testing` or `npm i -D ks6-scenarios-testing`.
 
-If you want to work with Typescript test files (I recommend this since Keystone is designed to be used with TS), you should create/update a `babel.config.js` in your root folder containing:
+If you want to work with Typescript test files (I recommend this since KS6 is designed to be used with TS), you should create/update a `babel.config.js` in your root folder containing:
 
 ```
 module.exports = {
@@ -18,6 +26,8 @@ module.exports = {
     ],
 };
 ```
+
+This configuration will let you use TS in your `.test.ts` files. You may also need to install dev dependencies: `yarn add -D @babel/preset-env @babel/preset-typescript @types/jest` (or with npm).
 
 Finally, just add a `test` script in your `package.json` file: `jest --runInBand --testTimeout=60000`.
 
@@ -55,7 +65,7 @@ const getUser = gql`query user(
 }`;
 
 // Creating a scenario
-// The step will be executed one after another!
+// Steps will be executed one after another!
 run("Regular user story", config, [
     // Running a Gql mutation to create an User
     query<Lists.User.Item>("Create Toto", {
