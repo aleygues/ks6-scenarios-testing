@@ -86,7 +86,7 @@ run("Regular user story", config, [
 
     // Checking if the db contains the newly created user
     custom('Retrieve Toto in the db', async ({ context, variables }) => {
-        const user = await context.db.User.findOne({
+        const user = await context.sudo().db.User.findOne({
             where: {
                 id: variables.userId
             }
@@ -120,3 +120,25 @@ run("Regular user story", config, [
     }),
 ]);
 ```
+
+You can run this example using `yarn test`.
+
+If you are using a simple User model such as mine, you'll get something like:
+
+```bash
+PASS  test/scenarios/users.test.ts (7.571 s)
+    Regular user story
+        ✓ Create Toto (143 ms)
+        ✓ Retrieve Toto in the db (16 ms)
+        ✓ Get Toto from an authenticated User (8 ms)
+        ✓ Get Toto from an authenticated User (14 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        7.628 s, estimated 8 s
+Ran all test suites.
+Done in 8.55s.
+```
+
+Enjoy!
