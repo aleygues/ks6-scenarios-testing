@@ -1,6 +1,6 @@
 {
   "name": "ks6-scenarios-testing",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Testing scenarios against a KS6 Gql API",
   "main": "dist/index.js",
   "files": [
